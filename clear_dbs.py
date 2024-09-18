@@ -34,7 +34,7 @@ def delete_all_embeddings():
     """Deletes all rows from the vector.embeddings table."""
     try:
         logger.info("Deleting all rows from Supabase vector.embeddings table...")
-        response = supabase.table("embeddings").delete().filter('1', 'eq', '1').execute()
+        response = supabase.table("embeddings").delete().neq('question_id', '6f8b39d6-4f6f-4e22-8e6d-abcde1234567').execute() # check against valid random uuid
         logger.info(f"Deleted rows: {response.data}")
     except Exception as e:
         logger.error(f"Error deleting embeddings: {e}")

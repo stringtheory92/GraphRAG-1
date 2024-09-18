@@ -62,18 +62,33 @@ def generate_query_embedding(query):
 #         logger.error(f"Error querying Supabase embeddings: {e}")
 #         raise
 
+# def search_supabase_for_similar_questions(query_embedding, top_k=3):
+#     """Searches Supabase for questions with embeddings most similar to the query embedding."""
+#     try:
+#         # Call Supabase using an RPC to retrieve the similar embeddings using cosine_distance
+#         response = client.table("embeddings").select("*").order(f"cosine_distance(embedding, array{query_embedding})").limit(top_k).execute()
+        
+#         logging.info(f"Retrieved {len(response.data)} similar questions from Supabase.")
+#         return response.data  # Return the response data (most similar questions)
+
+#     except Exception as e:
+#         logging.error(f"Error querying Supabase embeddings: {e}")
+#         raise
+
 def search_supabase_for_similar_questions(query_embedding, top_k=3):
     """Searches Supabase for questions with embeddings most similar to the query embedding."""
+    print("TYPE EMBEDDING ", type(query_embedding))
     try:
-        # Call Supabase using an RPC to retrieve the similar embeddings using cosine_distance
-        response = client.table("embeddings").select("*").order(f"cosine_distance(embedding, array{query_embedding})").limit(top_k).execute()
-        
-        logging.info(f"Retrieved {len(response.data)} similar questions from Supabase.")
-        return response.data  # Return the response data (most similar questions)
-
+        response = client.rpc("cosine_similarity_search", {"query_embedding": query_embedding, "top_k": top_k}).execute()
+        if response.status_code == 200:
+            print("Successful retrieval:", response.data)
+            return response.data
+        else:
+            print("Error:", response.json())
+            return None
     except Exception as e:
-        logging.error(f"Error querying Supabase embeddings: {e}")
-        raise
+        print(f"Error querying Supabase embeddings: {e}")
+
 
 
 
